@@ -7,8 +7,7 @@ from bs4 import BeautifulSoup
 google_image = "https://www.google.com/search?site=&tbm=isch&source=hp&biw=1873&bih=990&"
 
 user_agent = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
-}
+    "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"}
 
 # Third Section: Build the main function
 saved_folder = 'images'
@@ -23,38 +22,34 @@ def main():
 # Fourth Section: Build the download function
 def download_images():
     data = input('What are you looking for? ')
-    n_images = int(input('How many images do you want? '))
 
     print('searching...')
 
-    search_url = google_image + 'q=' + data
-    print(search_url)
+    links = []  
 
-    response = requests.get(search_url, headers=user_agent)
-    print(response)
+    temp = ["black", "white", "brown", "small", "animated"]
 
-    html = response.text
+    for i in range(0, 5):
 
-    soup = BeautifulSoup(html, 'html.parser')
+        search_url = google_image + 'q=' + data + " " + temp[i]
+        print(search_url)
 
-    results = soup.findAll('div', {'class': 'YQ4gaf'}, limit=n_images)
+        response = requests.get(search_url, headers=user_agent)
+        html = response.text
+        soup = BeautifulSoup(html, 'html.parser')
+        results = soup.findAll('img', {'class': 'DS1iW'})
 
-    for result in results:
-        text = result.text
-        print(text)
+        count = 1
+        for result in results:
+            try:
+                link = result['src']
+                links.append(link)
+                count += 1
+                if(count > 100):
+                    break
 
-    count = 1
-    links = []
-    for result in results:
-        try:
-            link = result['data-src']
-            links.append(link)
-            count += 1
-            if(count > n_images):
-                break
-
-        except KeyError:
-            continue
+            except KeyError:
+                continue
 
     print(f"Downloading {len(links)} images...")
 
